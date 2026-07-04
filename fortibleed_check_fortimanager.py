@@ -56,7 +56,7 @@ import urllib.error
 from pathlib import Path
 from typing import NoReturn
 
-__version__ = "2.0.0"
+__version__ = "2.0.1"
 
 EXIT_ERROR = 3
 

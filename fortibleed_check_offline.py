@@ -49,7 +49,7 @@ import sys
 from pathlib import Path
 from typing import Callable, NoReturn
 
-__version__ = "2.0.0"
+__version__ = "2.0.1"
 
 # ---------------------------------------------------------------------------
 # FortiBleed campaign context
@@ -259,23 +259,39 @@ def find_section(sections: dict[str, str], *candidates: str) -> tuple[str | None
 
 
 def _split_edit_blocks(out: str) -> dict[str, str]:
-    """Split a 'config ... edit "x" ... next ... end' body into {name: block}."""
+    """Split a 'config ... edit "x" ... next ... end' body into {name: block}.
+
+    Depth-aware: entries can contain nested 'config ... end' sub-tables (e.g.
+    'config gui-dashboard' inside an admin account in full-configuration
+    output) whose own 'edit N'/'next' lines must NOT be mistaken for
+    top-level entries. Only edit/next at nesting depth 0 are boundaries;
+    nested lines stay part of the surrounding entry's block."""
     result: dict[str, str] = {}
     name = None
     buf: list[str] = []
+    depth = 0  # nesting depth of 'config ... end' INSIDE the current entry
     for line in out.splitlines():
-        m = re.match(r'\s*edit\s+"?([^"\n]+?)"?\s*$', line)
-        if m:
-            if name is not None:
+        if re.match(r'\s*config\s+\S', line):
+            # A 'config' line outside any entry is the section's own outer
+            # wrapper (terminal output includes it; extracted config bodies
+            # do not) — it does not count as nesting.
+            if name is not None or depth > 0:
+                depth += 1
+        elif re.match(r'\s*end\s*$', line) and depth > 0:
+            depth -= 1
+        elif depth == 0:
+            m = re.match(r'\s*edit\s+"?([^"\n]+?)"?\s*$', line)
+            if m:
+                if name is not None:
+                    result[name] = "\n".join(buf)
+                name = m.group(1).strip()
+                buf = []
+                continue
+            if re.match(r'\s*next\s*$', line) and name is not None:
                 result[name] = "\n".join(buf)
-            name = m.group(1).strip()
-            buf = []
-            continue
-        if re.match(r'\s*next\s*$', line) and name is not None:
-            result[name] = "\n".join(buf)
-            name = None
-            buf = []
-            continue
+                name = None
+                buf = []
+                continue
         if name is not None:
             buf.append(line)
     if name is not None:
