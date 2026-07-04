@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Local review state (site-specific acknowledgements)
+mgmt_allowlist.txt
+
+# Collected device data — configs and terminal logs contain password hashes
+# and other secrets. Never commit them.
+*.conf
+*.log
+*.txt
+!fortibleed_commands.txt
+!requirements.txt
+
+# Report output
+*.json
+
+# macOS
+.DS_Store

@@ -1,0 +1,35 @@
+# fortibleed_commands.txt — commands to collect for fortibleed_check_offline.py
+#
+# How to collect:
+#   1. Enable session logging in your SSH client (PuTTY: Session > Logging,
+#      or `ssh fgt | tee device.txt`).
+#   2. Log in to the FortiGate CLI and paste the commands below (everything
+#      after this comment block). The tool keys each section on the CLI
+#      prompt line, so paste them at the prompt one after another.
+#   3. Save the session log as a .txt file and run:
+#        python3 fortibleed_check_offline.py device.txt
+#
+# Notes:
+#   - On VDOM-enabled units, run the commands from the global context
+#     ('config global' first, or use a full config backup instead).
+#   - Disable paging first so output is not truncated by --More--:
+#       config system console
+#           set output standard
+#       end
+#   - A full configuration backup (System > Configuration > Backup) works as
+#     input too — then you can skip this file entirely.
+
+get system status
+show system interface
+show system admin
+show full-configuration system admin
+show system api-user
+show system global
+show full-configuration system global
+show system password-policy
+show full-configuration system password-policy
+show vpn ssl settings
+show user local
+show firewall local-in-policy
+show system automation-action
+show system automation-trigger

@@ -1,0 +1,7 @@
+# fortibleed-check — runtime dependencies
+#
+# None. Both scripts are deliberately Python standard library only
+# (Python 3.9+), so they run on locked-down or air-gapped machines
+# with no install step.
+#
+# This file exists so tooling (CI, venv builders) has something to point at.
